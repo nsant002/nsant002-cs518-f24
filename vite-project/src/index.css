@@ -1,0 +1,209 @@
+:root {
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  color-scheme: light dark;
+  color: rgba(255, 255, 255, 0.87);
+  background-color: #242424;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* General page styles */
+body {
+  font-family: "Open Sans", sans-serif;
+  line-height: 1.6;
+  letter-spacing: 0.5px;
+  color: #ffffff;
+  background-color: #121212; /* Dark mode background */
+  margin: 0;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh; /* Full height for center alignment */
+  text-align: center;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 80%;
+  max-width: 600px;
+  background-color: #1F2937; /* Dark gray for card background */
+  color: #F9FAFB;
+  padding: 40px;
+  border-radius: 15px;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2); /* Softer shadow */
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+/* Profile button */
+.profile-button {
+  background-color: white;
+  color: #333;
+  border: none;
+  padding: 8px 12px;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+/* Content area */
+.content-box {
+  padding: 20px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  width: 100%;
+  max-width: 800px;
+  background-color: #1F2937;
+  color: #F9FAFB;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+/* Input and select styles */
+input,
+select {
+  background-color: #1F2937;
+  color: #ffffff;
+  padding: 12px;
+  border: 1px solid #374151;
+  border-radius: 8px;
+  width: 100%;
+  margin-bottom: 20px;
+  font-size: 16px;
+  transition: all 0.3s ease;
+}
+
+select {
+  appearance: none;
+  background-color: #1F2937;
+  background-image: url('path_to_arrow_icon.svg');
+  background-position: right 10px center;
+  background-repeat: no-repeat;
+  padding-right: 30px; /* Adjust for the icon */
+}
+
+select:focus {
+  outline: none;
+  border-color: #3B82F6;
+  box-shadow: 0 0 8px rgba(59, 130, 246, 0.5); /* Focus shadow */
+}
+
+select:hover {
+  border-color: #575757;
+}
+
+/* Dropdown Option Styles */
+option {
+  background-color: #1F2937;
+  color: #F9FAFB;
+  padding: 10px;
+  font-size: 14px;
+}
+
+/* Button styles */
+button {
+  background-color: #3B82F6;
+  color: #F9FAFB;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 25px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+button:hover {
+  transform: translateY(-3px);
+  background-color: #2563EB;
+}
+
+.login-button {
+  background-color: #3B82F6;
+}
+
+.signup-button {
+  background-color: #10B981;
+}
+
+/* Form buttons */
+.form-buttons {
+  margin-top: 20px;
+  display: flex;
+  justify-content: space-around;
+  width: 100%;
+}
+
+/* Link styles */
+a {
+  color: #3B82F6;
+  text-decoration: none;
+  font-weight: bold;
+  transition: color 0.3s ease;
+}
+
+a:hover {
+  color: #2563EB;
+  text-decoration: underline;
+}
+
+/* Fade-in animation */
+@keyframes fadeIn {
+  from {
+      opacity: 0;
+      transform: translateY(20px);
+  }
+  to {
+      opacity: 1;
+      transform: translateY(0);
+  }
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  h1 {
+      font-size: 2rem;
+  }
+
+  input, select {
+      padding: 10px;
+  }
+
+  .box {
+      width: 90%;
+  }
+}
+
+/* Admin and profile-specific styles */
+.admin-portal {
+  margin: 20px;
+}
+
+.prerequisite-row {
+  display: flex;
+  align-items: center; /* Align items vertically centered */
+  margin-bottom: 10px; /* Space between rows */
+}
+
+.checkbox-group {
+  display: flex; /* Display checkboxes inline */
+  align-items: center; /* Align checkboxes vertically centered */
+  margin-left: 10px; /* Space between selects and checkboxes */
+}
+
+.checkbox-group label {
+  margin-right: 10px; /* Space between checkboxes */
+}
+
+.profile-container {
+  overflow: auto; /* Allow scrolling if content exceeds */
+  max-height: 100vh; /* Limit height to the viewport */
+  padding: 20px; /* Add some padding */
+}
