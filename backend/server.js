@@ -106,7 +106,7 @@ app.post('/api/register', (req, res) => {
 
 // Email sending function using Nodemailer
 const sendVerificationEmail = (email, token) => {
-    const verificationUrl = `${process.env.FRONTEND_URL}/verificationsuccess?token=${token}`;
+    const verificationUrl = `http://localhost:5173/verificationsuccess?token=${token}`;
 
     const mailOptions = {
         from: process.env.SMTP_EMAIL,
@@ -367,32 +367,32 @@ app.put('/api/change-password', authenticateToken, async (req, res) => {
 });
   
 // Route to create/update/delete prerequisites by admin
-app.route('/api/admin/prerequisites')
-    .post(verifyToken, (req, res) => {
-        const { prerequisites } = req.body;  // Expect an array of prerequisites with prereq_id and is_enabled
+// app.route('/api/admin/prerequisites')
+//     .post(verifyToken, (req, res) => {
+//         const { prerequisites } = req.body;  // Expect an array of prerequisites with prereq_id and is_enabled
 
-        // Create a Promise array for updating each prerequisite individually
-        const updatePromises = prerequisites.map(prereq => {
-            const { prereq_id, is_enabled } = prereq;
-            const query = 'UPDATE prerequisites SET is_enabled = ? WHERE prereq_id = ?';
+//         // Create a Promise array for updating each prerequisite individually
+//         const updatePromises = prerequisites.map(prereq => {
+//             const { prereq_id, is_enabled } = prereq;
+//             const query = 'UPDATE prerequisites SET is_enabled = ? WHERE prereq_id = ?';
 
-            return new Promise((resolve, reject) => {
-                db.query(query, [is_enabled, prereq_id], (err, result) => {
-                    if (err) {
-                        console.error('Error updating prerequisite status:', err);
-                        reject(err);
-                    } else {
-                        resolve(result);
-                    }
-                });
-            });
-        });
+//             return new Promise((resolve, reject) => {
+//                 db.query(query, [is_enabled, prereq_id], (err, result) => {
+//                     if (err) {
+//                         console.error('Error updating prerequisite status:', err);
+//                         reject(err);
+//                     } else {
+//                         resolve(result);
+//                     }
+//                 });
+//             });
+//         });
 
-        // Execute all updates in parallel and send a response once completed
-        Promise.all(updatePromises)
-            .then(() => res.status(200).json({ message: 'Prerequisite statuses updated successfully' }))
-            .catch(err => res.status(500).json({ message: 'Failed to update prerequisites', error: err }));
-    });
+//         // Execute all updates in parallel and send a response once completed
+//         Promise.all(updatePromises)
+//             .then(() => res.status(200).json({ message: 'Prerequisite statuses updated successfully' }))
+//             .catch(err => res.status(500).json({ message: 'Failed to update prerequisites', error: err }));
+//     });
 
 
 // Route to fetch all courses
@@ -410,7 +410,7 @@ app.get('/api/courses', (req, res) => {
 
 // Route to fetch all prerequisites
 app.get('/api/prerequisites', (req, res) => {
-    const query = 'SELECT prereq_id, level, prereq_tag, prereq_name FROM prerequisites';
+    const query = 'SELECT prereq_id, level, CONCAT(prereq_tag,\" - \", prereq_name) AS prereqName FROM prerequisites';
     
     db.query(query, (err, results) => {
         if (err) {
@@ -421,61 +421,112 @@ app.get('/api/prerequisites', (req, res) => {
     });
 });
 
-app.post('/api/admin/prerequisites', verifyAdmin, async (req, res) => {
-    const prerequisites = req.body; // Array of prerequisites with enabled status
-  
-    try {
-      // Loop through each course and update the `is_enabled` status in the database
-      for (const course of prerequisites) {
-        await db.query(
-          'UPDATE prerequisites SET is_enabled = ? WHERE prereq_id = ?',
-          [course.enabled ? 1 : 0, course.course_id]
-        );
-      }
-  
-      res.status(200).json({ message: 'Prerequisites updated successfully.' });
-    } catch (error) {
-      console.error('Error updating prerequisites:', error);
-      res.status(500).json({ error: 'Failed to update prerequisites.' });
+
+// Route to fetch only enabled prerequisites for student 
+app.get('/api/student/prerequisites', (req, res) => {
+    const query = 'SELECT prereq_id, level, CONCAT(prereq_tag,\" - \", prereq_name) AS prereqName FROM prerequisites WHERE is_enabled = "1"';
+    
+    db.query(query, (err, results) => {
+        if (err) {
+            console.error('Error fetching prerequisites:', err);
+            return res.status(500).json({ error: 'Failed to fetch prerequisites' });
+        }
+        res.json(results);
+    });
+});
+
+
+app.post("/api/admin/prerequisites", (req, res) => {
+    if (req.body.toggleVal === true)
+    {
+      db.execute("UPDATE prerequisites SET is_enabled='1' WHERE prereq_id=?",
+        [req.body.preReq_ID],
+        function(err, result) { 
+          if (err) {
+            res.json({ 
+              status:400,
+              message: "Failed to set 'is_enabled' to 'true'",
+            });
+          } else {
+            res.json({
+              status:200,
+              message: "Successfully set 'is_enabled' to 'true'",
+              data: result, 
+            }); 
+          } 
+        } 
+      );
+    } else if (req.body.toggleVal === false) {
+      db.execute("UPDATE prerequisites SET is_enabled='0' WHERE prereq_id=?",
+        [req.body.preReq_ID],
+        function(err, result) { 
+          if (err) {
+            res.json({ 
+              status:400,
+              message: "Failed to set 'is_enabled' to 'false'",
+            });
+          } else {
+            res.json({
+              status:200,
+              message: "Successfully set 'is_enabled' to 'false'",
+              data: result, 
+            }); 
+          } 
+        } 
+      );
     }
   });
   
 
 // Route to manage student advising records
-app.route('/api/student/create-advising-form')
-    .post(authenticateToken, (req, res) => {
-        const { advisingData } = req.body; // The advising data from the request
-        const userId = req.user.userId;
 
-        // Get today's date for advising_date
-        const advisingDate = new Date().toISOString().split('T')[0]; // Format to YYYY-MM-DD
 
-        // Prepare the data to be inserted into the course_advising_history table
-        const {
+app.post('/api/student/create-advising-form', (req, res) => {
+    const { newAdvisingEntry, userId } = req.body; // Extract advising data and user ID from request body
+
+    // Get today's date for advising_date
+    const advisingDate = new Date().toISOString().split('T')[0]; // Format to YYYY-MM-DD
+
+    // Destructure fields from newAdvisingEntry with default values to prevent NULL values
+    const {
+        lastTerm = 'N/A',          // Default to 'N/A' if not provided
+        lastGPA = 0.0,             // Default GPA, modify as needed
+        advisingTerm = 'N/A',      // Default advising term
+        prerequisites = [],        // Default to an empty array
+        coursePlan = []            // Default to an empty array
+    } = newAdvisingEntry;
+
+    const status = 'Pending'; // Default status is "Pending"
+
+    // Define the query to insert data into the course_advising_history table
+    const query = `
+        INSERT INTO course_advising_history (advising_id, advising_date, last_term, last_gpa, advising_term, prerequisites, course_plan, status)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    `;
+
+    // Insert the data into the database
+    db.query(
+        query,
+        [
+            userId,
+            advisingDate,
             lastTerm,
             lastGPA,
             advisingTerm,
-            prerequisites,
-            coursePlan
-        } = advisingData;
-
-        const status = 'Pending'; // Default status is "Pending"
-
-        // Define the query to insert data into course_advising_history table
-        const query = `
-            INSERT INTO course_advising_history (user_id, advising_date, last_term, last_gpa, advising_term, prerequisites, course_plan, status)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-        `;
-
-        // Insert the data into the database
-        db.query(query, [userId, advisingDate, lastTerm, lastGPA, advisingTerm, JSON.stringify(prerequisites), JSON.stringify(coursePlan), status], (err, result) => {
+            JSON.stringify(prerequisites),  // Convert arrays to JSON strings
+            JSON.stringify(coursePlan),
+            status
+        ],
+        (err, result) => {
             if (err) {
                 console.error('Error creating advising record:', err);
                 return res.status(500).json({ message: 'Failed to create advising record' });
             }
             res.status(201).json({ message: 'Advising record created successfully', id: result.insertId });
-        });
-    });
+        }
+    );
+});
+
 
 
 // Get Advising History
@@ -485,10 +536,9 @@ app.get('/api/advising-history', authenticateToken, async (req, res) => {
       const userId = req.user.id;  // decoded user ID from the JWT token
   
       const query = `
-        SELECT date, advising_term, status
+        SELECT advising_date, advising_term, prerequisites, course_plan, status
         FROM course_advising_history
-        WHERE user_id = ?
-        ORDER BY advising_term DESC;
+        ORDER BY advising_date DESC
       `;
       
       // Execute the query to fetch advising history for the authenticated user
@@ -514,7 +564,6 @@ app.get('/api/advising-history', authenticateToken, async (req, res) => {
   
 // Route to log out
 app.post('/api/logout', (req, res) => {
-    // Here you can implement logout logic, such as invalidating the token on the client-side
     res.json({ message: 'Logged out successfully' });
 });
 

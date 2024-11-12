@@ -15,20 +15,67 @@ const Profile = () => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showChangePassword, setShowChangePassword] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
-  
-  // Prerequisites and course plan for Admin
+
+  const [DisplayPrereqErrorMessage, setDisplayPrereqErrorMessage] = useState('');
+  const [DisplayPrereqSuccessMessage, setDisplayPrereqSuccessMessage] = useState('');
+  const [checkBoxChangesErrorMessage, setCheckBoxChangesErrorMessage] = useState('');
+  const [checkBoxChangesSuccessMessage, setCheckBoxChangesSuccessMessage] = useState('');
+
+  const [prereqUpdateAvailResultSuccessMessage, setPrereqUpdateAvailResultSuccessMessage] = useState('');
+  const [prereqUpdateAvailResultErrorMessage, setPrereqUpdateAvailResultErrorMessage] = useState('');
+
   const [prerequisites, setPrerequisites] = useState([]);
+  const [updateToggleVal, setUpdateToggleVal] = useState(false);
+  
   const [courses, setCourses] = useState([]);
-  const [prerequisiteForm, setPrerequisiteForm] = useState(
-    courses.map(course => ({
-      course_id: course.course_id,
-      enabled: course.enabled || false, // Default to false if not set
-      disabled: !course.enabled         // Default to true if enabled is false
-    }))
-  );  
+  useEffect(() => {
+    fetch('http://localhost:3000/api/courses') // replace with the correct endpoint
+        .then(response => response.json())
+        .then(data => setCourses(data))
+        .catch(error => console.error('Error fetching courses:', error));
+  }, []);
   
   // Advising history and new advising form for Student
   const [advisingHistory, setAdvisingHistory] = useState([]);
+  useEffect(() => {
+    // Fetch advising history when the component mounts
+    const fetchAdvisingHistory = async () => {
+      try {
+        const token = localStorage.getItem('token');  // Get token from localStorage or state
+        if (!token) {
+          console.error('No token found.');
+          return;
+        }
+
+        const response = await fetch('http://localhost:3000/api/advising-history', {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${token}`,  // Include token in the Authorization header
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch advising history');
+        }
+
+        const data = await response.json();
+        setAdvisingHistory(data || []);  // Set the advising history to state
+      } catch (error) {
+        console.error('Error fetching advising history:', error);
+      }
+    };
+
+    fetchAdvisingHistory();
+  }, []); 
+  const [detailsVisibility, setDetailsVisibility] = useState({});
+  // Toggle showing/hiding details for a specific advising entry 
+  const toggleDetails = (entryId) => {
+    setDetailsVisibility((prevVisibility) => ({
+      ...prevVisibility,
+      [entryId]: !prevVisibility[entryId], // Toggle visibility for the selected entry
+    }));
+  };
+
   const [newAdvisingEntry, setNewAdvisingEntry] = useState({
     lastTerm: '',
     lastGPA: '',
@@ -36,9 +83,22 @@ const Profile = () => {
     prerequisites: [],
     courses: []
   });
+ 
   
+  useEffect(() => {
+    // Fetch enabled prerequisites for students
+    fetch('http://localhost:3000/api/student/prerequisites')
+        .then((response) => response.json())
+        .then((data) => setPrerequisites(data))
+        .catch((error) => console.error('Error fetching prerequisites:', error));
+  }, []);
+  
+
 //  const levels = [100, 200, 300, 400];
   const navigate = useNavigate();
+
+  
+
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -68,22 +128,291 @@ const Profile = () => {
       }
     };
     
-    const fetchCoursesAndPrerequisites = async () => {
-      const token = localStorage.getItem('token');
-      const prerequisitesResponse = await fetch('http://localhost:3000/api/prerequisites', {
-        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
-      });
-      const prerequisitesData = await prerequisitesResponse.json();
-      setCourses(prerequisitesData);
-      setPrerequisiteForm(prerequisitesData.map(prereq => ({
-        course_id: prereq.course_id,
-        enabled: prereq.is_enabled === 1,
-      })));
-    };
-    
+
     fetchUserData();
-    fetchCoursesAndPrerequisites();
   }, []);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+  // #1
+  useEffect(() => {
+    handleDisplayPrerequisites(); 
+  }, []);
+  
+  // #2
+  const handleDisplayPrerequisites = async (e) => {
+    setDisplayPrereqErrorMessage('');
+    setDisplayPrereqSuccessMessage('');
+    try {
+        setLoading(true);
+        //
+        const response = await fetch('http://localhost:3000/api/prerequisites');
+        if (!response.ok) {
+            throw new Error("Error occured");
+        }
+        const data = await response.json();
+        setPrerequisites(data);
+        setLoading(false);
+        console.log("Success!");
+
+        console.log("prerequisites = " + prerequisites);
+        setDisplayPrereqSuccessMessage('Success!');
+    } catch (error) {
+        console.error('Error occurred: ', error);
+        setDisplayPrereqErrorMessage('Error occurred: Please try again');
+    }
+  };
+
+  // #3
+  const handlePrereqClick = (e, index, id, prereq) => {
+    let res = [...prerequisites];
+    let previousCheckedVal = res[index].is_enabled;
+    setUpdateToggleVal(previousCheckedVal);
+    let fixedToggleVal = !res[index].is_enabled;
+    onChangeCheckBoxEvent(e, index, id, prereq);
+    handleCheckBoxChanges(fixedToggleVal, id);
+  };
+
+  // #4
+  // Toggle individual checkboxes
+  const onChangeCheckBoxEvent = async (e, index, id, prereq) => {
+    console.log("Function: 'onChangeCheckBoxEvent'");
+    let res = [...prerequisites];
+    let previousCheckedVal = res[index].is_enabled;
+    console.log("res[index].is_enabled = " + !res[index].is_enabled);
+    setUpdateToggleVal(previousCheckedVal);
+    console.log("\n\nPrevious checked state = " + previousCheckedVal);
+    if (e.target.checked) {
+        console.log("res[" + (index) + "] = checked");
+        console.log("prereq_id = " + id);
+        res[index].is_enabled = 1;
+    } else if (!e.target.checked) {
+        console.log("res[" + (index) + "] = unchecked");
+        res[index].is_enabled = 0;
+        console.log("prereq_id = " + id);
+    }
+    console.log("prereq_id = " + prereq.id);
+    console.log("Current checked state = " + res[index].is_enabled+"\n\n");
+    setPrerequisites(res);
+  }
+
+  const handleCheckBoxChanges = async (fixedToggleVal, id) => {
+    setCheckBoxChangesErrorMessage('');
+    setCheckBoxChangesSuccessMessage('');
+    console.log("Function: 'handleCheckBoxChanges'");
+
+    const token = localStorage.getItem('token');
+    if (!token) {
+      console.log("No token found.");
+      return;
+    }
+
+    
+
+
+    try {
+        setLoading(true);
+        console.log("Loading = " + loading);
+
+        console.log("id = " + id);
+        console.log("toggleVal = " + updateToggleVal);
+        console.log("fixedToggleVal = " + fixedToggleVal);
+        const formBody=JSON.stringify({
+            preReq_ID:id,
+            toggleVal:fixedToggleVal
+        })
+        //
+        const response= await fetch('http://localhost:3000/api/admin/prerequisites', {
+            method:"POST",
+            body:formBody,
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }
+        });
+        if (!response.ok) {
+            throw new Error('Error'); // Handle HTTP errors
+        }
+        const data = await response.json();
+        setLoading(false);
+        console.log("Loading = " + loading);
+        console.log("Success!");
+        setPrereqUpdateAvailResultSuccessMessage('Success!');
+    } catch (error) {
+        console.error('Error occurred: ', error);
+        setPrereqUpdateAvailResultErrorMessage('Error!');
+    }
+  };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
   // Handle profile edit
   const handleEditProfile = () => {
@@ -158,45 +487,33 @@ const Profile = () => {
 
   // Handle prerequisite checkbox change (Admin)
   const handlePrerequisiteChange = (courseId) => {
-    setPrerequisiteForm(prevForm =>
-      prevForm.map((prereq) =>
-        prereq.course_id === courseId ? { ...prereq, enabled: !prereq.enabled } : prereq
-      )
-    );
+    // setPrerequisiteForm(prevForm =>
+    //   prevForm.map((prereq) =>
+    //     prereq.course_id === courseId ? { ...prereq, enabled: !prereq.enabled } : prereq
+    //   )
+    // );
     
     const updatedPrerequisite = prerequisiteForm.find(prereq => prereq.course_id === courseId);
     handleCheckBoxChanges(updatedPrerequisite); // Send only the updated prerequisite
   };
 
 
-  // Send updated checkbox state to server
-  const handleCheckBoxChanges = async (updatedPrerequisite) => {
-    const token = localStorage.getItem('token');
 
-    if (!token) {
-      console.log("No token found.");
-      return;
-    }
 
-    // Toggle is_enabled value based on the checkbox state
-    const updatedData = {
-      ...updatedPrerequisite,
-      is_enabled: updatedPrerequisite.enabled ? 1 : 0 // Toggle between 1 and 0 for enabled/disabled state
-    };    
 
-    try {
-      const response = await fetch('http://localhost:3000/api/admin/prerequisites', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-        body: JSON.stringify(updatedData),
-      });
 
-      if (!response.ok) throw new Error('Failed to update prerequisite status');
-      console.log("Prerequisite status updated successfully.");
-    } catch (error) {
-      console.error('Error updating prerequisite:', error);
-    }
-  };
+
+
+
+
+
+
+
+
+
+
+
+  
   
   // Handle advising form changes (Student)
   const handleAdvisingEntryChange = (field, value) => {
@@ -206,23 +523,30 @@ const Profile = () => {
   const addAdvisingPrerequisiteRow = () => {
     setNewAdvisingEntry((prev) => ({
       ...prev,
-      prerequisites: [...prev.prerequisites, { level: '', course: '' }]
+      prerequisites: [...prev.prerequisites, {course: '' }]
     }));
   };
 
   const addCoursePlanRow = () => {
     setNewAdvisingEntry((prev) => ({
       ...prev,
-      courses: [...prev.courses, { level: '', course: '' }]
+      courses: [...prev.courses, {course: '' }]
     }));
   };
 
   const submitAdvisingEntry = async () => {
     try {
+      const token = localStorage.getItem('token');
+      const formBody = JSON.stringify({
+        newAdvisingEntry,
+        userId: userData.userId
+    })
+
+
       const response = await fetch('http://localhost:3000/api/student/create-advising-form', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newAdvisingEntry), //investigate, this is where the form is failing in submitting
+        body: formBody
       });
 
       if (!response.ok) throw new Error('Failed to save advising entry.');
@@ -236,6 +560,97 @@ const Profile = () => {
 
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error: {error}</div>;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
   return (
     <div className="profile-container">
@@ -286,29 +701,45 @@ const Profile = () => {
         <div className="admin-portal">
           <h2>Admin Course Prerequisite Management</h2>
           <table className="prerequisite-table">
-            <thead>
-              <tr>
-                <th>Level</th>
-                <th>Course</th>
-                <th>Enable</th>
-              </tr>
-            </thead>
-            <tbody>
-              {courses.map((course, index) => (
-                <tr key={index}>
-                  <td>{course.level}</td>
-                  <td>{course.prereq_tag} - {course.prereq_name}</td>
-                  <td>
-                    <input
-                      type="checkbox"
-                      checked={prerequisiteForm[index]?.enabled}
-                      onChange={() => handlePrerequisiteChange(course.course_id)}
-                    />
-                  </td>
-                </tr>
-              ))}
-            </tbody>
+              <th>Level</th>
+              <th>Course Name</th>
+              <th>Enable?</th>
+              {
+                prerequisites.map((prereq, index) => {
+                    return (
+                        <tbody>
+                            <tr>
+                                <td>{prereq.level}</td>
+                                <td>{prereq.prereqName}</td>
+                                <td><input type="checkbox" checked={prereq.is_enabled} onChange={(e)=>handlePrereqClick(e, index, prereq.prereq_id, prereq)}/></td>
+                            </tr>
+                        </tbody>
+                    )
+                  })
+              }
           </table>
+          <h2>Advising History</h2>
+          {advisingHistory.length > 0 ? (
+            advisingHistory.map((entry) => (
+              <div key={entry.id}>
+                <p>Date: {entry.advising_date}</p>
+                <p>Term: {entry.advising_term}</p>
+                <p>Status: {entry.status}</p>
+                <button onClick={() => toggleDetails(entry.id)}>
+                  {detailsVisibility[entry.id] ? 'Hide Details' : 'Show Details'}
+                </button>
+                
+                {detailsVisibility[entry.id] && (
+                  <div>
+                    <p>Course Plan: {JSON.stringify(entry.course_plan)}</p>
+                    <p>Prerequisites: {JSON.stringify(entry.prerequisites)}</p>
+                  </div>
+                )}
+              </div>
+            ))
+          ) : (
+            <p>No advising history available.</p>
+          )}          
         </div>
       ) : (
         <div className="student-portal">
@@ -324,9 +755,9 @@ const Profile = () => {
               </thead>
               <tbody>
                 {advisingHistory.map((entry) => (
-                  <tr key={entry.id}>
-                    <td>{entry.date}</td>
-                    <td>{entry.term}</td>
+                  <tr key={entry.advising_id}>
+                    <td>{entry.advising_date}</td>
+                    <td>{entry.advising_term}</td>
                     <td>{entry.status}</td>
                   </tr>
                 ))}
@@ -353,24 +784,24 @@ const Profile = () => {
 
             <h3>Prerequisites</h3>
             {newAdvisingEntry.prerequisites.map((prereq, index) => (
-              <div key={index} style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
-                <label>Select Prerequisite Course</label>
-                <select
-                  value={prereq.course}
-                  onChange={(e) => {
-                    const updatedPrereqs = [...newAdvisingEntry.prerequisites];
-                    updatedPrereqs[index].course = e.target.value;
-                    setNewAdvisingEntry((prev) => ({ ...prev, prerequisites: updatedPrereqs }));
-                  }}
-                >
-                  <option value="">Select Course</option>
-                  {prerequisites.map((prereqOption) => (
-                    <option key={prereqOption.prereq_id} value={prereqOption.prereq_id}>
-                      {prereqOption.prereq_name} ({prereqOption.prereq_tag})
-                    </option>
-                  ))}
-                </select>
-              </div>
+                <div key={index} style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
+                    <label>Select Prerequisite Course</label>
+                    <select
+                        value={prereq.course}
+                        onChange={(e) => {
+                            const updatedPrereqs = [...newAdvisingEntry.prerequisites];
+                            updatedPrereqs[index].course = e.target.value;
+                            setNewAdvisingEntry((prev) => ({ ...prev, prerequisites: updatedPrereqs }));
+                        }}
+                    >
+                        <option value="">Select Course</option>
+                        {prerequisites.map((prereqOption) => (
+                            <option key={prereqOption.prereq_id} value={prereqOption.prereq_id}>
+                                {prereqOption.prereqName}
+                            </option>
+                        ))}
+                    </select>
+                </div>
             ))}
             <button type="button" onClick={addAdvisingPrerequisiteRow}>Add Prerequisite</button>
 
