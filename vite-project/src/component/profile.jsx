@@ -29,7 +29,7 @@ const Profile = () => {
   
   const [courses, setCourses] = useState([]);
   useEffect(() => {
-    fetch('https://nsant002-cs518-f24.onrender.com:3000/api/courses') // replace with the correct endpoint
+    fetch('https://nsant002-cs518-f24.onrender.com/api/courses') // replace with the correct endpoint
         .then(response => response.json())
         .then(data => setCourses(data))
         .catch(error => console.error('Error fetching courses:', error));
@@ -47,7 +47,7 @@ const Profile = () => {
           return;
         }
 
-        const response = await fetch('https://nsant002-cs518-f24.onrender.com:3000/api/advising-history', {
+        const response = await fetch('https://nsant002-cs518-f24.onrender.com/api/advising-history', {
           method: 'GET',
           headers: {
             'Authorization': `Bearer ${token}`,  // Include token in the Authorization header
@@ -87,7 +87,7 @@ const Profile = () => {
   
   useEffect(() => {
     // Fetch enabled prerequisites for students
-    fetch('https://nsant002-cs518-f24.onrender.com:3000/api/student/prerequisites')
+    fetch('https://nsant002-cs518-f24.onrender.com/api/student/prerequisites')
         .then((response) => response.json())
         .then((data) => setPrerequisites(data))
         .catch((error) => console.error('Error fetching prerequisites:', error));
@@ -107,7 +107,7 @@ const Profile = () => {
         const token = localStorage.getItem('token');
         if (!token) throw new Error("No token found. Please log in.");
 
-        const response = await fetch('https://nsant002-cs518-f24.onrender.com:3000/api/user', {
+        const response = await fetch('https://nsant002-cs518-f24.onrender.com/api/user', {
           headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json',
@@ -237,7 +237,7 @@ const Profile = () => {
     try {
         setLoading(true);
         //
-        const response = await fetch('https://nsant002-cs518-f24.onrender.com:3000/api/prerequisites');
+        const response = await fetch('https://nsant002-cs518-f24.onrender.com/api/prerequisites');
         if (!response.ok) {
             throw new Error("Error occured");
         }
@@ -313,7 +313,7 @@ const Profile = () => {
             toggleVal:fixedToggleVal
         })
         //
-        const response= await fetch('https://nsant002-cs518-f24.onrender.com:3000/api/admin/prerequisites', {
+        const response= await fetch('https://nsant002-cs518-f24.onrender.com/api/admin/prerequisites', {
             method:"POST",
             body:formBody,
             headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }
@@ -435,7 +435,7 @@ const Profile = () => {
   const saveProfile = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('https://nsant002-cs518-f24.onrender.com:3000/api/update-user', {
+      const response = await fetch('https://nsant002-cs518-f24.onrender.com/api/update-user', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -462,7 +462,7 @@ const Profile = () => {
     }
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('https://nsant002-cs518-f24.onrender.com:3000/api/change-password', {
+      const response = await fetch('https://nsant002-cs518-f24.onrender.com/api/change-password', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -543,7 +543,7 @@ const Profile = () => {
     })
 
 
-      const response = await fetch('https://nsant002-cs518-f24.onrender.com:3000/api/student/create-advising-form', {
+      const response = await fetch('https://nsant002-cs518-f24.onrender.com/api/student/create-advising-form', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: formBody
