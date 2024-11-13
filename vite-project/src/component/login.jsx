@@ -22,7 +22,7 @@ const Login = () => {
         }
 
         try {
-            const response = await axios.post('http://localhost:3000/api/login', { email, password });
+            const response = await axios.post(import.meta.env.VITE_API_KEY+'/login', { email, password });
 
             // Log the response to check if the token is returned
             console.log('Login response data:', response.data);

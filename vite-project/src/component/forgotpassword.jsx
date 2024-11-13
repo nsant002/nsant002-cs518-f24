@@ -29,7 +29,7 @@ const ForgotPassword = () => {
 
         try {
             const response = await axios.put(
-                `http://locahost:3000/api/change-password`, 
+                `https://nsant002-cs518-f24.onrender.com/api/change-password`, 
                 { email, newPassword }
             );
             setMessage(response.data.message || 'Your password has been updated successfully.');

@@ -31,7 +31,7 @@ const Register = () => {
         }
 
         try {
-            const response = await axios.post('http://localhost:3000/api/register', {
+            const response = await axios.post('https://nsant002-cs518-f24.onrender.com/api/register', {
                 email,
                 first_name: firstName,
                 last_name: lastName,
