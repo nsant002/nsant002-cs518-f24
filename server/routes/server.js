@@ -1,32 +1,28 @@
-require('dotenv').config(); // Load environment variables from .env file
-const express = require('express');
-const mysql = require('mysql2'); // Make sure to install mysql2
-const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
-const cors = require('cors'); // Import the cors package
-const nodemailer = require('nodemailer'); // Import Nodemailer
-const { Router } = require('express'); // Import Router
-const crypto = require('crypto');
+//require('dotenv').config(); // Load environment variables from .env file
+import { Router } from "express";
+// const mysql = require('mysql2'); // Make sure to install mysql2
+// const bcrypt = require('bcrypt');
+// const jwt = require('jsonwebtoken');
+// const cors = require('cors'); // Import the cors package
+// const nodemailer = require('nodemailer'); // Import Nodemailer
+// const crypto = require('crypto');
+import { db } from "../database/database.js";
+import { SendMail } from "../utils/sendmail.js";
+
+const server = Router();
+export default server;
 
 // Store OTPs in memory (consider using a database in production)
 const otpStore = {};
-const app = express();
+//const app = express();
 const user = Router(); // Initialize Router
-app.use(cors()); // Enable CORS
-app.use(express.json()); // Parse JSON request bodies
+//server.use(cors()); // Enable CORS
+//server.use(express.json()); // Parse JSON request bodies
 
 // Log incoming headers
-app.use((req, res, next) => {
+server.use((req, res, next) => {
     console.log('Request Headers:', req.headers); // Log incoming headers
     next();
-});
-
-// Create MySQL connection
-const db = mysql.createConnection({
-    host: process.env.DB_HOST,
-    user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    database: process.env.DB_NAME,
 });
 
 // Connect to the database
@@ -38,17 +34,17 @@ db.connect((err) => {
     console.log('Connected to MySQL database');
 });
 
-// Create a Nodemailer transporter
-const transporter = nodemailer.createTransport({
-    service: 'Gmail',
-    auth: {
-        user: process.env.SMTP_EMAIL,
-        pass: process.env.SMTP_PASSWORD,
-    },
-});
+// // Create a Nodemailer transporter
+// const transporter = nodemailer.createTransport({
+//     service: 'Gmail',
+//     auth: {
+//         user: process.env.SMTP_EMAIL,
+//         pass: process.env.SMTP_PASSWORD,
+//     },
+// });
 
 // Route to register user
-app.post('/api/register', (req, res) => {
+server.post('/api/register', (req, res) => {
     const { email, first_name, last_name, password } = req.body;
 
     // Check if user already exists
@@ -116,7 +112,7 @@ const sendVerificationEmail = (email, token) => {
                <a href="${verificationUrl}">Verify Account</a>`,
     };
 
-    transporter.sendMail(mailOptions, (err, info) => {
+    SendMail(mailOptions, (err, info) => {
         if (err) {
             console.error('Error sending email:', err);
         } else {
@@ -126,7 +122,7 @@ const sendVerificationEmail = (email, token) => {
 };
 
 // Route to send OTP
-app.post('/api/send-otp', async (req, res) => {
+server.post('/api/send-otp', async (req, res) => {
     const { email } = req.body;
 
     // Generate a 6-digit OTP
@@ -143,7 +139,7 @@ app.post('/api/send-otp', async (req, res) => {
     };
 
     try {
-        await transporter.sendMail(mailOptions);
+        await SendMail(mailOptions);
         return res.status(200).json({ message: 'OTP sent successfully to your email.' });
     } catch (error) {
         console.error('Error sending OTP:', error);
@@ -152,7 +148,7 @@ app.post('/api/send-otp', async (req, res) => {
 });
 
 // Route to verify user account
-app.get('/api/verificationsuccess', async (req, res) => {
+server.get('/api/verificationsuccess', async (req, res) => {
     const { token } = req.query;
 
     if (!token) {
@@ -180,7 +176,7 @@ app.get('/api/verificationsuccess', async (req, res) => {
 });
 
 // Route to log in user
-app.post('/api/login', async (req, res) => {
+server.post('/api/login', async (req, res) => {
     const { email, password } = req.body;
 
     // Query the database to find the user
@@ -219,7 +215,7 @@ app.post('/api/login', async (req, res) => {
         otpStore[email] = otp; // Store OTP in memory (or database) with expiration if needed
 
         try {
-            // await transporter.sendMail(mailOptions);
+            // await SendMail(mailOptions);
             return res.status(200).json({ message: 'Login successful. An OTP has been sent to your email.', token });
         } catch (error) {
             console.error('Error sending OTP:', error);
@@ -229,7 +225,7 @@ app.post('/api/login', async (req, res) => {
 });
 
 // Route to verify OTP
-app.post('/api/verify-otp', (req, res) => {
+server.post('/api/verify-otp', (req, res) => {
     const { email, otp } = req.body;
 
     // Check if OTP matches
@@ -284,7 +280,7 @@ const verifyAdmin = (req, res, next) => {
   };  
 
 // Route to get user data
-app.get('/api/user', authenticateToken, (req, res) => {
+server.get('/api/user', authenticateToken, (req, res) => {
     db.query('SELECT * FROM users WHERE id = ?', [req.user.userId], (error, results) => {
         if (error) {
             console.error('Database error during fetching user:', error); // Logging error
@@ -300,7 +296,7 @@ app.get('/api/user', authenticateToken, (req, res) => {
 });
 
 // Route to update user information
-app.put('/api/update-user', authenticateToken, (req, res) => {
+server.put('/api/update-user', authenticateToken, (req, res) => {
     const { first_name, last_name, password } = req.body;
 
     // Hash the password if it's provided
@@ -325,7 +321,7 @@ app.put('/api/update-user', authenticateToken, (req, res) => {
 });
 
 // Route to change user password
-app.put('/api/change-password', authenticateToken, async (req, res) => {
+server.put('/api/change-password', authenticateToken, async (req, res) => {
     const { oldPassword, newPassword } = req.body;
 
     if (!oldPassword || !newPassword) {
@@ -367,7 +363,7 @@ app.put('/api/change-password', authenticateToken, async (req, res) => {
 });
   
 // Route to create/update/delete prerequisites by admin
-// app.route('/api/admin/prerequisites')
+// server.route('/api/admin/prerequisites')
 //     .post(verifyToken, (req, res) => {
 //         const { prerequisites } = req.body;  // Expect an array of prerequisites with prereq_id and is_enabled
 
@@ -396,7 +392,7 @@ app.put('/api/change-password', authenticateToken, async (req, res) => {
 
 
 // Route to fetch all courses
-app.get('/api/courses', (req, res) => {
+server.get('/api/courses', (req, res) => {
     const query = 'SELECT course_id, course_level, course_tag, course_name FROM courses';
     
     db.query(query, (err, results) => {
@@ -409,7 +405,7 @@ app.get('/api/courses', (req, res) => {
 });
 
 // Route to fetch all prerequisites
-app.get('/api/prerequisites', (req, res) => {
+server.get('/api/prerequisites', (req, res) => {
     const query = 'SELECT prereq_id, level, CONCAT(prereq_tag,\" - \", prereq_name) AS prereqName FROM prerequisites';
     
     db.query(query, (err, results) => {
@@ -423,7 +419,7 @@ app.get('/api/prerequisites', (req, res) => {
 
 
 // Route to fetch only enabled prerequisites for student 
-app.get('/api/student/prerequisites', (req, res) => {
+server.get('/api/student/prerequisites', (req, res) => {
     const query = 'SELECT prereq_id, level, CONCAT(prereq_tag,\" - \", prereq_name) AS prereqName FROM prerequisites WHERE is_enabled = "1"';
     
     db.query(query, (err, results) => {
@@ -436,7 +432,7 @@ app.get('/api/student/prerequisites', (req, res) => {
 });
 
 
-app.post("/api/admin/prerequisites", (req, res) => {
+server.post("/api/admin/prerequisites", (req, res) => {
     if (req.body.toggleVal === true)
     {
       db.execute("UPDATE prerequisites SET is_enabled='1' WHERE prereq_id=?",
@@ -481,7 +477,7 @@ app.post("/api/admin/prerequisites", (req, res) => {
 // Route to manage student advising records
 
 
-app.post('/api/student/create-advising-form', (req, res) => {
+server.post('/api/student/create-advising-form', (req, res) => {
     const { newAdvisingEntry, userId } = req.body; // Extract advising data and user ID from request body
 
     // Get today's date for advising_date
@@ -530,7 +526,7 @@ app.post('/api/student/create-advising-form', (req, res) => {
 
 
 // Get Advising History
-app.get('/api/advising-history', authenticateToken, async (req, res) => {
+server.get('/api/advising-history', authenticateToken, async (req, res) => {
     try {
       // Assuming the user is identified by their ID in the JWT token
       const userId = req.user.id;  // decoded user ID from the JWT token
@@ -563,12 +559,6 @@ app.get('/api/advising-history', authenticateToken, async (req, res) => {
 
   
 // Route to log out
-app.post('/api/logout', (req, res) => {
+server.post('/api/logout', (req, res) => {
     res.json({ message: 'Logged out successfully' });
-});
-
-// Start the server
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
 });
