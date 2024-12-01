@@ -129,47 +129,43 @@ const Login = () => {
         e.preventDefault();
         setError('');
         setLoading(true);
-
+    
         if (!email || !password) {
             setError('Please fill in both fields');
             setLoading(false);
             return;
         }
-
-        // Validate reCAPTCHA
-        const recaptchaToken = await recaptchaRef.current.executeAsync();
-        recaptchaRef.current.reset(); // Reset reCAPTCHA after obtaining the token
-
+    
+        // Get reCAPTCHA token manually
+        const recaptchaToken = recaptchaRef.current.getValue();
         if (!recaptchaToken) {
             setError('Please complete the reCAPTCHA');
             setLoading(false);
             return;
         }
-
+    
         try {
             const response = await axios.post(import.meta.env.VITE_API_KEY + '/login', {
                 email,
                 password,
-                recaptchaToken, // Send reCAPTCHA token to the server
+                recaptchaToken, // Include the token in the request
             });
-
+    
             if (response.data.token) {
                 localStorage.setItem('token', response.data.token);
                 localStorage.setItem('userEmail', email);
-                navigate('/twofactor', { state: { email } });
             } else {
                 throw new Error('Token not received from the server.');
             }
+    
+            navigate('/twofactor', { state: { email } });
         } catch (err) {
-            if (err.response && err.response.data && err.response.data.message) {
-                setError(err.response.data.message);
-            } else {
-                setError('Invalid email or password');
-            }
+            setError(err.response?.data?.message || 'Invalid email or password');
         } finally {
             setLoading(false);
         }
     };
+    
 
     return (
         <div className="container">
@@ -209,7 +205,7 @@ const Login = () => {
                         <ReCAPTCHA
                             sitekey={import.meta.env.VITE_SITE_KEY}
                             ref={recaptchaRef}
-                            size="invisible"
+                            size="normal"
                         />
                     </div>
 
