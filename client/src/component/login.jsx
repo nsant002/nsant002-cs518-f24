@@ -209,6 +209,7 @@ const Login = () => {
                         <ReCAPTCHA
                             sitekey={import.meta.env.VITE_SITE_KEY}
                             ref={recaptchaRef}
+                            size="invisible"
                         />
                     </div>
 
