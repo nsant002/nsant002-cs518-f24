@@ -24,11 +24,11 @@
 //     },
 // });
 
-const express = require('express');
-const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
-const cors = require('cors'); // Import the cors package
-const crypto = require('crypto');
+import express from "express";
+import bcrypt from "bcrypt";
+import jsonwebtoken from "jwt";
+import cors from "cors";
+import crypto from "crypto";
 import { Router } from "express";
 import { db } from "../database/database.js";
 import { SendMail } from "../utils/sendmail.js";
