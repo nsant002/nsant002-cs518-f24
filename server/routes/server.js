@@ -23,11 +23,15 @@
 //         pass: process.env.SMTP_PASSWORD,
 //     },
 // });
-
+require('dotenv').config(); // Load environment variables from .env file
+const express = require('express');
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+const cors = require('cors'); // Import the cors package
+const crypto = require('crypto');
 import { Router } from "express";
 import { db } from "../database/database.js";
 import { SendMail } from "../utils/sendmail.js";
-import { compare } from "bcrypt";
 
 
 const server = Router();
@@ -201,7 +205,7 @@ server.post('/login', async (req, res) => {
         const user = results[0];
 
         // Check if the password is correct
-        const isMatch = await ComparePassword(password, user.password);
+        const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
             return res.status(401).json({ message: 'Invalid password. Please try typing it correctly, or click "Forgot password" to reset your password.' });
         }
@@ -350,7 +354,7 @@ server.put('/change-password', authenticateToken, async (req, res) => {
         const user = results[0];
 
         // Compare the old password with the stored password
-        const isMatch = await ComparePassword(oldPassword, user.password);
+        const isMatch = await bcrypt.compare(oldPassword, user.password);
         if (!isMatch) {
             return res.status(401).json({ message: 'Old password is incorrect.' });
         }

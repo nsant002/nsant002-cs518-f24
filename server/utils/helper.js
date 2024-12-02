@@ -6,7 +6,7 @@ export function HashedPassword(password)
     return hashSync(password,salt);
 }
 
-export function ComparePasword(raw,hashedPassword){
+export function ComparePassword(raw,hashedPassword){
     return compareSync(raw,hashedPassword)
 }
 
