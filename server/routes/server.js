@@ -32,7 +32,7 @@ const server = Router();
 export default server;
 
 const otpStore = {};// Store OTPs in memory (consider using a database in production)
-const user = Router(); // Initialize Router
+//const user = Router(); // Initialize Router
 
 // Log incoming headers
 server.use((req, res, next) => {
