@@ -50,7 +50,7 @@ db.connect((err) => {
 });
 
 // Route to register user
-server.post('/api/register', (req, res) => {
+server.post('/register', (req, res) => {
     const { email, first_name, last_name, password } = req.body;
 
     // Check if user already exists
@@ -128,7 +128,7 @@ const sendVerificationEmail = (email, token) => {
 };
 
 // Route to send OTP
-server.post('/api/send-otp', async (req, res) => {
+server.post('/send-otp', async (req, res) => {
     const { email } = req.body;
 
     // Generate a 6-digit OTP
@@ -154,7 +154,7 @@ server.post('/api/send-otp', async (req, res) => {
 });
 
 // Route to verify user account
-server.get('/api/verificationsuccess', async (req, res) => {
+server.get('/verificationsuccess', async (req, res) => {
     const { token } = req.query;
 
     if (!token) {
@@ -182,7 +182,7 @@ server.get('/api/verificationsuccess', async (req, res) => {
 });
 
 // Route to log in user
-server.post('/api/login', async (req, res) => {
+server.post('/login', async (req, res) => {
     const { email, password } = req.body;
 
     // Query the database to find the user
@@ -231,7 +231,7 @@ server.post('/api/login', async (req, res) => {
 });
 
 // Route to verify OTP
-server.post('/api/verify-otp', (req, res) => {
+server.post('/verify-otp', (req, res) => {
     const { email, otp } = req.body;
 
     // Check if OTP matches
@@ -286,7 +286,7 @@ const verifyAdmin = (req, res, next) => {
   };  
 
 // Route to get user data
-server.get('/api/user', authenticateToken, (req, res) => {
+server.get('/user', authenticateToken, (req, res) => {
     db.query('SELECT * FROM users WHERE id = ?', [req.user.userId], (error, results) => {
         if (error) {
             console.error('Database error during fetching user:', error); // Logging error
@@ -302,7 +302,7 @@ server.get('/api/user', authenticateToken, (req, res) => {
 });
 
 // Route to update user information
-server.put('/api/update-user', authenticateToken, (req, res) => {
+server.put('/update-user', authenticateToken, (req, res) => {
     const { first_name, last_name, password } = req.body;
 
     // Hash the password if it's provided
@@ -327,7 +327,7 @@ server.put('/api/update-user', authenticateToken, (req, res) => {
 });
 
 // Route to change user password
-server.put('/api/change-password', authenticateToken, async (req, res) => {
+server.put('/change-password', authenticateToken, async (req, res) => {
     const { oldPassword, newPassword } = req.body;
 
     if (!oldPassword || !newPassword) {
@@ -398,7 +398,7 @@ server.put('/api/change-password', authenticateToken, async (req, res) => {
 
 
 // Route to fetch all courses
-server.get('/api/courses', (req, res) => {
+server.get('/courses', (req, res) => {
     const query = 'SELECT course_id, course_level, course_tag, course_name FROM courses';
     
     db.query(query, (err, results) => {
@@ -411,7 +411,7 @@ server.get('/api/courses', (req, res) => {
 });
 
 // Route to fetch all prerequisites
-server.get('/api/prerequisites', (req, res) => {
+server.get('/prerequisites', (req, res) => {
     const query = 'SELECT prereq_id, level, CONCAT(prereq_tag,\" - \", prereq_name) AS prereqName FROM prerequisites';
     
     db.query(query, (err, results) => {
@@ -425,7 +425,7 @@ server.get('/api/prerequisites', (req, res) => {
 
 
 // Route to fetch only enabled prerequisites for student 
-server.get('/api/student/prerequisites', (req, res) => {
+server.get('/student/prerequisites', (req, res) => {
     const query = 'SELECT prereq_id, level, CONCAT(prereq_tag,\" - \", prereq_name) AS prereqName FROM prerequisites WHERE is_enabled = "1"';
     
     db.query(query, (err, results) => {
@@ -438,7 +438,7 @@ server.get('/api/student/prerequisites', (req, res) => {
 });
 
 
-server.post("/api/admin/prerequisites", (req, res) => {
+server.post("/admin/prerequisites", (req, res) => {
     if (req.body.toggleVal === true)
     {
       db.execute("UPDATE prerequisites SET is_enabled='1' WHERE prereq_id=?",
@@ -483,7 +483,7 @@ server.post("/api/admin/prerequisites", (req, res) => {
 // Route to manage student advising records
 
 
-server.post('/api/student/create-advising-form', (req, res) => {
+server.post('/student/create-advising-form', (req, res) => {
     const { newAdvisingEntry, userId } = req.body; // Extract advising data and user ID from request body
 
     // Get today's date for advising_date
@@ -532,7 +532,7 @@ server.post('/api/student/create-advising-form', (req, res) => {
 
 
 // Get Advising History
-server.get('/api/advising-history', authenticateToken, async (req, res) => {
+server.get('/advising-history', authenticateToken, async (req, res) => {
     try {
       // Assuming the user is identified by their ID in the JWT token
       const userId = req.user.id;  // decoded user ID from the JWT token
