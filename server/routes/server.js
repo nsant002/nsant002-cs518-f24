@@ -26,7 +26,7 @@
 
 import express from "express";
 import bcrypt from "bcrypt";
-//import jwt from "jsonwebtoken";
+import jwt from "jsonwebtoken";
 import cors from "cors";
 import crypto from "crypto";
 import { Router } from "express";
