@@ -3,7 +3,7 @@
 // const mysql = require('mysql2'); // Make sure to install mysql2
 // const bcrypt = require('bcrypt');
 // const jwt = require('jsonwebtoken');
-// const cors = require('cors'); // Import the cors package
+//const cors = require('cors'); // Import the cors package
 // const nodemailer = require('nodemailer'); // Import Nodemailer
 // const crypto = require('crypto');
 //const express = require('express');
