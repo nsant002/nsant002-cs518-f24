@@ -36,7 +36,7 @@ const ResetPassword = () => {
 
     try {
       // API request to reset password
-      const response = await fetch('https://nsant002-cs518-f24.onrender.com/api/reset-password', {
+      const response = await fetch('https://nsant002-cs518-f24.onrender.com/reset-password', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
