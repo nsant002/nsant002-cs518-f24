@@ -145,7 +145,7 @@ const Login = () => {
         }
     
         try {
-            const response = await axios.post(import.meta.env.VITE_API_KEY + '/login', {
+            const response = await axios.post('https://nsant002-cs518-f24.onrender.com/api/login', {
                 email,
                 password,
                 recaptchaToken, // Include the token in the request
