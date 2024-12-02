@@ -6,6 +6,7 @@ import { Router } from "express";
 // const cors = require('cors'); // Import the cors package
 // const nodemailer = require('nodemailer'); // Import Nodemailer
 // const crypto = require('crypto');
+const express = require('express');
 import { db } from "../database/database.js";
 import { SendMail } from "../utils/sendmail.js";
 
@@ -17,7 +18,7 @@ const otpStore = {};
 //const app = express();
 const user = Router(); // Initialize Router
 //server.use(cors()); // Enable CORS
-//server.use(express.json()); // Parse JSON request bodies
+server.use(express.json()); // Parse JSON request bodies
 
 // Log incoming headers
 server.use((req, res, next) => {
