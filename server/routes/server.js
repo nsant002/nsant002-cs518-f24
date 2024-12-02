@@ -1,5 +1,5 @@
 //require('dotenv').config(); // Load environment variables from .env file
-import { Router } from "express";
+
 // const mysql = require('mysql2'); // Make sure to install mysql2
 // const bcrypt = require('bcrypt');
 // const jwt = require('jsonwebtoken');
@@ -7,18 +7,32 @@ import { Router } from "express";
 // const nodemailer = require('nodemailer'); // Import Nodemailer
 // const crypto = require('crypto');
 //const express = require('express');
+
+
+
+//const app = express();
+//server.use(cors()); // Enable CORS
+//server.use(express.json()); // Parse JSON request bodies
+
+
+// // Create a Nodemailer transporter
+// const transporter = nodemailer.createTransport({
+//     service: 'Gmail',
+//     auth: {
+//         user: process.env.SMTP_EMAIL,
+//         pass: process.env.SMTP_PASSWORD,
+//     },
+// });
+
+import { Router } from "express";
 import { db } from "../database/database.js";
 import { SendMail } from "../utils/sendmail.js";
 
 const server = Router();
 export default server;
 
-// Store OTPs in memory (consider using a database in production)
-const otpStore = {};
-//const app = express();
+const otpStore = {};// Store OTPs in memory (consider using a database in production)
 const user = Router(); // Initialize Router
-//server.use(cors()); // Enable CORS
-//server.use(express.json()); // Parse JSON request bodies
 
 // Log incoming headers
 server.use((req, res, next) => {
@@ -34,15 +48,6 @@ db.connect((err) => {
     }
     console.log('Connected to MySQL database');
 });
-
-// // Create a Nodemailer transporter
-// const transporter = nodemailer.createTransport({
-//     service: 'Gmail',
-//     auth: {
-//         user: process.env.SMTP_EMAIL,
-//         pass: process.env.SMTP_PASSWORD,
-//     },
-// });
 
 // Route to register user
 server.post('/api/register', (req, res) => {
