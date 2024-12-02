@@ -160,7 +160,7 @@ const Login = () => {
     
             navigate('/twofactor', { state: { email } });
         } catch (err) {
-            setError(err.response?.data?.message || 'Invalid email or password');
+            setError(err.response?.data?.message || 'Unknown Website Error. Check the configuration settings and try again.');
         } finally {
             setLoading(false);
         }
