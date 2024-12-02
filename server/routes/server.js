@@ -108,7 +108,7 @@ server.post('/api/register', (req, res) => {
 
 // Email sending function using Nodemailer
 const sendVerificationEmail = (email, token) => {
-    const verificationUrl = `http://localhost:5173/verificationsuccess?token=${token}`;
+    const verificationUrl = `https://nsant002-cs518-f24.onrender.com/verificationsuccess?token=${token}`;
 
     const mailOptions = {
         from: process.env.SMTP_EMAIL,
