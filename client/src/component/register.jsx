@@ -17,19 +17,27 @@ const Register = () => {
         e.preventDefault();
         setError('');
         setLoading(true);
-
+    
+        const passwordRegex = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+    
         if (!email || !firstName || !lastName || !password || !confirmPassword) {
             setError('Please fill in all fields');
             setLoading(false);
             return;
         }
-
+    
+        if (!passwordRegex.test(password)) {
+            setError('Password must contain at least 8 characters, including uppercase, lowercase, a number, and a special character');
+            setLoading(false);
+            return;
+        }
+    
         if (password !== confirmPassword) {
             setError('Passwords do not match');
             setLoading(false);
             return;
         }
-
+    
         try {
             const response = await axios.post('https://nsant002-cs518-f24.onrender.com/api/register', {
                 email,
@@ -37,7 +45,7 @@ const Register = () => {
                 last_name: lastName,
                 password,
             });
-
+    
             console.log(response.data);
             // Navigate to /verifyaccount with a success message
             navigate('/verifyaccount', { state: { message: 'User registered successfully. Please check your email to verify your account.' } });
@@ -51,7 +59,7 @@ const Register = () => {
         } finally {
             setLoading(false);
         }
-    };
+    };    
 
     const handleClear = () => {
         setEmail('');

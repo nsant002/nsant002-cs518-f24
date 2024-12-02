@@ -129,9 +129,17 @@ const Login = () => {
         e.preventDefault();
         setError('');
         setLoading(true);
+
+        const passwordRegex = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
     
         if (!email || !password) {
             setError('Please fill in both fields');
+            setLoading(false);
+            return;
+        }
+
+        if (!passwordRegex.test(password)) {
+            setError('Password must contain at least 8 characters, including uppercase, lowercase, a number, and a special character.');
             setLoading(false);
             return;
         }
