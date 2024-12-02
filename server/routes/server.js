@@ -23,7 +23,7 @@
 //         pass: process.env.SMTP_PASSWORD,
 //     },
 // });
-require('dotenv').config(); // Load environment variables from .env file
+
 const express = require('express');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
