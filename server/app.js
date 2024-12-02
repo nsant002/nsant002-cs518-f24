@@ -3,7 +3,7 @@
 import bodyParser from "body-parser";
 import cors from "cors";
 import express from "express";
-import server from "./routes/server.js";
+import server from './routes/server.js'
 const app=express();
 const port=3000;
 
@@ -18,7 +18,7 @@ app.use(bodyParser.json());
 app.use(cors({
     origin:"*"
 }))
-app.use('/app', server);
+app.use('/server', server);
 
 app.listen(port,()=>{
     console.log(`Server is running at port ${port}`);

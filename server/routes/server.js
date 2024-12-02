@@ -29,7 +29,7 @@ import { db } from "../database/database.js";
 import { SendMail } from "../utils/sendmail.js";
 
 const server = Router();
-export default server;
+
 
 const otpStore = {};// Store OTPs in memory (consider using a database in production)
 //const user = Router(); // Initialize Router
@@ -565,6 +565,8 @@ server.get('/api/advising-history', authenticateToken, async (req, res) => {
 
   
 // Route to log out
-server.post('/api/logout', (req, res) => {
+server.post('/logout', (req, res) => {
     res.json({ message: 'Logged out successfully' });
 });
+
+export default server;
