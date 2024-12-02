@@ -15,14 +15,7 @@
 //server.use(express.json()); // Parse JSON request bodies
 
 
-// // Create a Nodemailer transporter
-// const transporter = nodemailer.createTransport({
-//     service: 'Gmail',
-//     auth: {
-//         user: process.env.SMTP_EMAIL,
-//         pass: process.env.SMTP_PASSWORD,
-//     },
-// });
+
 
 import express from "express";
 import bcrypt from "bcrypt";
@@ -31,7 +24,17 @@ import cors from "cors";
 import crypto from "crypto";
 import { Router } from "express";
 import { db } from "../database/database.js";
-import { SendMail } from "../utils/sendmail.js";
+import nodemailer from "nodemailer"
+
+// Create a Nodemailer transporter
+const transporter = nodemailer.createTransport({
+    service: 'Gmail',
+    auth: {
+        user: process.env.SMTP_EMAIL,
+        pass: process.env.SMTP_PASSWORD,
+    },
+});
+//import { SendMail } from "../utils/sendmail.js";
 
 
 const server = Router();
@@ -124,7 +127,7 @@ const sendVerificationEmail = (email, token) => {
                <a href="${verificationUrl}">Verify Account</a>`,
     };
 
-    SendMail(mailOptions, (err, info) => {
+    transporter.sendMail(mailOptions, (err, info) => {
         if (err) {
             console.error('Error sending email:', err);
         } else {
@@ -151,7 +154,7 @@ server.post('/send-otp', async (req, res) => {
     };
 
     try {
-        await SendMail(mailOptions);
+        await transporter.sendMail(mailOptions);
         return res.status(200).json({ message: 'OTP sent successfully to your email.' });
     } catch (error) {
         console.error('Error sending OTP:', error);

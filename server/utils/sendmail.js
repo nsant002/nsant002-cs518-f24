@@ -25,7 +25,7 @@ export function SendMail(email, emailSubject, emailBody) {
     if (err) {
       console.log(err.message);
     } else {
-      console.log("Email sent sucvcessfully!");
+      console.log("Email sent successfully!");
     }
   });
 }
