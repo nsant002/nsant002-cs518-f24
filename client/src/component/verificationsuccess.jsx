@@ -20,7 +20,7 @@ const VerificationSuccess = () => {
     // Fetch the verification using the token
     const verifyAccount = async () => {
       try {
-        const response = await fetch(`https://nsant002-cs518-f24.onrender.com/verificationsuccess?token=${token}`, {
+        const response = await fetch(`https://nsant002-cs518-f24.onrender.com/server/verificationsuccess?token=${token}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',

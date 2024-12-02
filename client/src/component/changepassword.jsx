@@ -38,7 +38,7 @@ const ChangePassword = () => {
       // Assuming you have stored the JWT token in local storage after logging in
       const token = localStorage.getItem('token');
 
-      const response = await fetch('https://nsant002-cs518-f24.onrender.com/change-password', {
+      const response = await fetch('https://nsant002-cs518-f24.onrender.com/server/change-password', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

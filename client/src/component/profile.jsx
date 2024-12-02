@@ -543,7 +543,7 @@ const Profile = () => {
     })
 
 
-      const response = await fetch('https://nsant002-cs518-f24.onrender.com/student/create-advising-form', {
+      const response = await fetch('https://nsant002-cs518-f24.onrender.com/server/student/create-advising-form', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: formBody

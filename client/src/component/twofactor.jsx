@@ -26,7 +26,7 @@ const TwoFactor = () => {
         console.log('Sending OTP to email:', email); 
 
         try {
-            const response = await fetch('https://nsant002-cs518-f24.onrender.com/send-otp', {
+            const response = await fetch('https://nsant002-cs518-f24.onrender.com/server/send-otp', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -58,7 +58,7 @@ const TwoFactor = () => {
         console.log('OTP entered:', otp); 
 
         try {
-            const response = await fetch('https://nsant002-cs518-f24.onrender.com/verify-otp', {
+            const response = await fetch('https://nsant002-cs518-f24.onrender.com/server/verify-otp', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email, otp }),
