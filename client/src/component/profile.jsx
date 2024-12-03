@@ -98,7 +98,7 @@ const Profile = () => {
     
       try {
         // Make an API call to update the advising history entry
-        const response = await fetch(`https://nsant002-cs518-f24.onrender.com/server/update-advising-status/${id}`, {
+        const response = await fetch(`https://nsant002-cs518-f24.onrender.com/server/update-advising-status/`, {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
