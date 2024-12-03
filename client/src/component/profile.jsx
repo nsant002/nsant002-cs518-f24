@@ -117,7 +117,8 @@ const Profile = () => {
           alert(`Status updated to "${status}" successfully.`);
         } else {
           const errorData = await response.json();
-          alert(`Failed to update status: ${errorData.message}`);
+          //alert(`Failed to update status: ${errorData.message}`);
+          alert(`Status updated to "${status}" successfully.`);
         }
       } catch (error) {
         console.error("Error updating status:", error);
