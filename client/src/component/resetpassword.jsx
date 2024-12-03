@@ -15,9 +15,17 @@ const ResetPassword = () => {
     setMessage('');
     setLoading(true);
 
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+
     // Simple validation
     if (!email || !newPassword || !confirmPassword) {
       setError('Please fill in all fields.');
+      setLoading(false);
+      return;
+    }
+
+    if (!passwordRegex.test(password)) {
+      setError('Password must contain at least 8 characters, including uppercase, lowercase, a number, and a special character');
       setLoading(false);
       return;
     }
@@ -92,6 +100,11 @@ const ResetPassword = () => {
             onChange={(e) => setNewPassword(e.target.value)}
             required
           />
+          {!passwordRegex.test(newPassword) && newPassword && (
+            <p style={{ color: 'red', fontSize: '0.9rem' }}>
+            Password must be at least 8 characters long, include one uppercase letter, one lowercase letter, one number, and one special character.
+            </p>
+          )}
         </div>
 
         <div>
