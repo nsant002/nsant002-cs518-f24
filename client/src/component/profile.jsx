@@ -91,10 +91,10 @@ const Profile = () => {
       // Get the feedback message for the selected entry
       const feedbackMessage = feedbackMessages[id];
     
-      if (!feedbackMessage) {
-        alert("Please provide feedback before submitting a decision.");
-        return;
-      }
+      // if (!feedbackMessage) {
+      //   alert("Please provide feedback before submitting a decision.");
+      //   return;
+      // }
     
       try {
         // Make an API call to update the advising history entry
