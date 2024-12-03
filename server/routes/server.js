@@ -601,4 +601,53 @@ server.post('/logout', (req, res) => {
     res.json({ message: 'Logged out successfully' });
 });
 
+server.post('/login/test', async (req, res) => {
+    const { email, password } = req.body;
+
+    // Query the database to find the user
+    db.query('SELECT * FROM users WHERE email = ?', [email], async (error, results) => {
+        if (error) {
+            console.error('Database error during login:', error); // Logging error
+            return res.status(500).json({ message: 'Database error' });
+        }
+
+        if (results.length === 0) {
+            return res.status(401).json({ message: 'Invalid email address. Please try using a different email address or create a new account.' });
+        }
+
+        const user = results[0];
+
+        // Check if the password is correct
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (!isMatch) {
+            return res.status(401).json({ message: 'Invalid password. Please try typing it correctly, or click "Forgot password" to reset your password.' });
+        }
+
+        // Check if the user is verified
+        if (!user.verified || user.verified === 0) { // Check for unverified users
+            return res.status(403).json({ message: 'Please verify your account before logging in.' });
+        }
+
+        // // Generate JWT token
+        // const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+        // console.log("Generated JWT Token:", token); // Log the token
+
+        // const decoded = jwt.decode(token); // Decode for inspection
+        // console.log("Decoded Token:", decoded); // Log the decoded token
+
+        // // Generate OTP
+        // const otp = crypto.randomInt(100000, 999999).toString(); // Generate a 6-digit OTP
+        // otpStore[email] = otp; // Store OTP in memory (or database) with expiration if needed
+
+        try {
+            // await SendMail(mailOptions);
+            return res.status(200).json({ message: 'Login successful. An OTP has been sent to your email.'});
+        } catch (error) {
+            console.error('Error sending OTP:', error);
+            return res.status(500).json({ message: 'Failed to send OTP. Please try again.' });
+        }
+    });
+});
+
+
 export default server;
