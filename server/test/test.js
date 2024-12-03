@@ -34,9 +34,7 @@ describe('Testing Prerequisites API', ()=>{
 
     it('Testing Prerequisites API',async function(){
        
-        var response= await supertest(app).get(`/server/prerequisites`).send({         
-        })
-
+        var response= await supertest(app).get(`/server/prerequisites`)
         expect(response.status).equal(200)
     })
 })   
