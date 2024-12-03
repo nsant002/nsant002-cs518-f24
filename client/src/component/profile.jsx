@@ -111,7 +111,7 @@ const Profile = () => {
           // Update the local advising history state with the new status
           setAdvisingHistory((prevHistory) =>
             prevHistory.map((entry) =>
-              entry.id === id ? { ...entry, status } : entry
+              entry.advising_id === id ? { ...entry, status } : entry
             )
           );
           alert(`Status updated to "${status}" successfully.`);
@@ -771,26 +771,25 @@ const Profile = () => {
           <h2>Advising History</h2>
           {advisingHistory.length > 0 ? (
             advisingHistory.map((entry) => (
-              <div key={entry.id} className="advising-entry">
+              <div key={entry.advising_id} className="advising-entry">
               <p>Date: {entry.advising_date}</p>
               <p>Term: {entry.advising_term}</p>
               <p>Status: {entry.status}</p>
-              <p>Feedback: {entry.feedback || "No feedback provided"}</p>
-              <button onClick={() => toggleDetails(entry.id)}>
-                {detailsVisibility[entry.id] ? 'Hide Details' : 'Show Details'}
+              <button onClick={() => toggleDetails(entry.advising_id)}>
+                {detailsVisibility[entry.advising_id] ? 'Hide Details' : 'Show Details'}
               </button>
               
-              {detailsVisibility[entry.id] && (
+              {detailsVisibility[entry.advising_id] && (
                 <div>
                   <p>Course Plan: {JSON.stringify(entry.course_plan)}</p>
                   <p>Prerequisites: {JSON.stringify(entry.prerequisites)}</p>
                   <textarea
                     placeholder="Enter feedback message"
-                    value={feedbackMessages[entry.id] || ""}
-                    onChange={(e) => handleFeedbackChange(e, entry.id)}
+                    value={feedbackMessages[entry.advising_id] || ""}
+                    onChange={(e) => handleFeedbackChange(e, entry.advising_id)}
                   ></textarea>
-                  <button onClick={() => handleDecision(entry.id, "Approved")}>Approve</button>
-                  <button onClick={() => handleDecision(entry.id, "Rejected")}>Reject</button>
+                  <button onClick={() => handleDecision(entry.advising_id, "Approved")}>Approve</button>
+                  <button onClick={() => handleDecision(entry.advising_id, "Rejected")}>Reject</button>
                 </div>
               )}
             </div>
