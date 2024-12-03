@@ -573,14 +573,14 @@ server.get('/advising-history', authenticateToken, async (req, res) => {
   });
 
 server.put('/update-advising-status', async (req, res) => {
-  const { id } = req.params;
+  //const { id } = req.params;
   const { status } = req.body;
 
   try {
     // Update the course_advising_history table
     const result = db.query(
         "UPDATE course_advising_history SET status = ? WHERE advising_id = ?",
-        [status, id]
+        [status]
     );
 
     if (result.affectedRows > 0) {
