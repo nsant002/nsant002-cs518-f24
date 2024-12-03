@@ -8,6 +8,8 @@ const Profile = () => {
   const [lastName, setLastName] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [feedbackMessages, setFeedbackMessages] = useState({});
+
   
   // Password and role management
   const [currentPassword, setCurrentPassword] = useState('');
@@ -75,6 +77,54 @@ const Profile = () => {
       [entryId]: !prevVisibility[entryId], // Toggle visibility for the selected entry
     }));
   };
+
+    // Define handleFeedbackChange here
+    const handleFeedbackChange = (e, id) => {
+      const value = e.target.value;
+      setFeedbackMessages((prevMessages) => ({
+        ...prevMessages,
+        [id]: value,
+      }));
+    };
+  
+    const handleDecision = async (id, status) => {
+      // Get the feedback message for the selected entry
+      const feedbackMessage = feedbackMessages[id];
+    
+      if (!feedbackMessage) {
+        alert("Please provide feedback before submitting a decision.");
+        return;
+      }
+    
+      try {
+        // Make an API call to update the advising history entry
+        const response = await fetch(`https://nsant002-cs518-f24.onrender.com/server/update-advising-status/${id}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`, // Add token if required
+          },
+          body: JSON.stringify({ status, feedback: feedbackMessage }),
+        });
+    
+        if (response.ok) {
+          // Update the local advising history state with the new status
+          setAdvisingHistory((prevHistory) =>
+            prevHistory.map((entry) =>
+              entry.id === id ? { ...entry, status } : entry
+            )
+          );
+          alert(`Status updated to "${status}" successfully.`);
+        } else {
+          const errorData = await response.json();
+          alert(`Failed to update status: ${errorData.message}`);
+        }
+      } catch (error) {
+        console.error("Error updating status:", error);
+        alert("An error occurred while updating the status.");
+      }
+    };
+    
 
   const [newAdvisingEntry, setNewAdvisingEntry] = useState({
     lastTerm: '',
@@ -721,21 +771,29 @@ const Profile = () => {
           <h2>Advising History</h2>
           {advisingHistory.length > 0 ? (
             advisingHistory.map((entry) => (
-              <div key={entry.id}>
-                <p>Date: {entry.advising_date}</p>
-                <p>Term: {entry.advising_term}</p>
-                <p>Status: {entry.status}</p>
-                <button onClick={() => toggleDetails(entry.id)}>
-                  {detailsVisibility[entry.id] ? 'Hide Details' : 'Show Details'}
-                </button>
-                
-                {detailsVisibility[entry.id] && (
-                  <div>
-                    <p>Course Plan: {JSON.stringify(entry.course_plan)}</p>
-                    <p>Prerequisites: {JSON.stringify(entry.prerequisites)}</p>
-                  </div>
-                )}
-              </div>
+              <div key={entry.id} className="advising-entry">
+              <p>Date: {entry.advising_date}</p>
+              <p>Term: {entry.advising_term}</p>
+              <p>Status: {entry.status}</p>
+              <p>Feedback: {entry.feedback || "No feedback provided"}</p>
+              <button onClick={() => toggleDetails(entry.id)}>
+                {detailsVisibility[entry.id] ? 'Hide Details' : 'Show Details'}
+              </button>
+              
+              {detailsVisibility[entry.id] && (
+                <div>
+                  <p>Course Plan: {JSON.stringify(entry.course_plan)}</p>
+                  <p>Prerequisites: {JSON.stringify(entry.prerequisites)}</p>
+                  <textarea
+                    placeholder="Enter feedback message"
+                    value={feedbackMessages[entry.id] || ""}
+                    onChange={(e) => handleFeedbackChange(e, entry.id)}
+                  ></textarea>
+                  <button onClick={() => handleDecision(entry.id, "Approved")}>Approve</button>
+                  <button onClick={() => handleDecision(entry.id, "Rejected")}>Reject</button>
+                </div>
+              )}
+            </div>
             ))
           ) : (
             <p>No advising history available.</p>
