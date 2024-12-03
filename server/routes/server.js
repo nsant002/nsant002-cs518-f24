@@ -579,7 +579,7 @@ server.put('/update-advising-status/:id', async (req, res) => {
   try {
     // Update the course_advising_history table
     const result = db.query(
-        "UPDATE course_advising_history SET status = ?, feedback = ? WHERE advising_id = ?",
+        "UPDATE course_advising_history SET status = ?, feedback = ? WHERE id = ?",
         [status, feedback, id]
     );
 
