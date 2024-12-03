@@ -788,8 +788,8 @@ const Profile = () => {
                     value={feedbackMessages[entry.advising_id] || ""}
                     onChange={(e) => handleFeedbackChange(e, entry.advising_id)}
                   ></textarea>
-                  <button onClick={() => handleDecision(entry.advising_id, "Approved")}>Approve</button>
-                  <button onClick={() => handleDecision(entry.advising_id, "Rejected")}>Reject</button>
+                  <button onClick={() => handleDecision(entry.status, "Approved")}>Approve</button>
+                  <button onClick={() => handleDecision(entry.status, "Rejected")}>Reject</button>
                 </div>
               )}
             </div>
