@@ -651,9 +651,9 @@ server.post('/login/test', async (req, res) => {
 
 // Route to send decision email
 server.post("/send-decision-email", (req, res) => {
-    const { advising_id, status } = req.body;
+    const { status } = req.body;
   
-    if (!advising_id || !status) {
+    if (!status) {
       return res.status(400).json({ message: "All fields are required." });
     }
   
