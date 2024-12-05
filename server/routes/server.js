@@ -649,5 +649,43 @@ server.post('/login/test', async (req, res) => {
     });
 });
 
+// Route to send decision email
+server.post('/send-decision-email', async (req, res) => {
+    const { email, decision, advisingTerm } = req.body;
+
+    if (!email || !decision || !advisingTerm) {
+        return res.status(400).json({ message: 'Email, decision, and advising term are required.' });
+    }
+
+    const mailOptions = {
+        from: process.env.SMTP_EMAIL,
+        to: email,
+        subject: 'Advising Decision Notification',
+        html: `
+            <p>Dear Student,</p>
+            <p>We have reviewed your advising request for the term <strong>${advisingTerm}</strong>.</p>
+            <p>Your request has been <strong>${decision}</strong>.</p>
+            <p>If you have any questions or concerns, please contact the advising office.</p>
+            <p>Best regards,</p>
+            <p>The Advising Team</p>
+        `,
+    };
+
+    try {
+        // Send the email using the transporter
+        await transporter.sendMail(mailOptions);
+        console.log('Decision email sent successfully.');
+
+        res.status(200).json({
+            message: `Decision email sent successfully to ${email}.`,
+        });
+    } catch (error) {
+        console.error('Error sending decision email:', error);
+        res.status(500).json({
+            message: 'Failed to send decision email. Please try again.',
+        });
+    }
+});
+
 
 export default server;
