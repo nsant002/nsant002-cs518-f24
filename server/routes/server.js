@@ -654,9 +654,9 @@ server.post("/send-decision-email", async (req, res) => {
     const { advising_id, status } = req.body;
   
     // Validate required fields
-    if (!advising_id || !status) {
-      return res.status(400).json({ message: "All fields are required." });
-    }
+    // if (!advising_id || !status) {
+    //   return res.status(400).json({ message: "All fields are required." });
+    // }
   
     try {
       // Check if advising entry exists
