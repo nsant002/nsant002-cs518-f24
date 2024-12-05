@@ -8,7 +8,7 @@ const Profile = () => {
   const [lastName, setLastName] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const [feedbackMessages, setFeedbackMessages] = useState({});
+  // const [feedbackMessages, setFeedbackMessages] = useState({});
 
   
   // Password and role management
@@ -79,13 +79,13 @@ const Profile = () => {
   };
 
     // Define handleFeedbackChange here
-    const handleFeedbackChange = (e, id) => {
-      const value = e.target.value;
-      setFeedbackMessages((prevMessages) => ({
-        ...prevMessages,
-        [id]: value,
-      }));
-    };
+    // const handleFeedbackChange = (e, id) => {
+    //   const value = e.target.value;
+    //   setFeedbackMessages((prevMessages) => ({
+    //     ...prevMessages,
+    //     [id]: value,
+    //   }));
+    // };
   
     // const handleDecision = async (id, status) => {
     //   // Get the feedback message for the selected entry
@@ -146,7 +146,7 @@ const Profile = () => {
           body: JSON.stringify({
             advisingId,
             newStatus,
-            feedback,
+            // feedback,
           }),
         });
     
@@ -821,11 +821,11 @@ const Profile = () => {
                 <div>
                   <p>Course Plan: {JSON.stringify(entry.course_plan)}</p>
                   <p>Prerequisites: {JSON.stringify(entry.prerequisites)}</p>
-                  <textarea
+                  {/* <textarea
                     placeholder="Enter feedback message"
                     value={feedbackMessages[entry.advising_id] || ""}
                     onChange={(e) => handleFeedbackChange(e, entry.advising_id)}
-                  ></textarea>
+                  ></textarea> */}
                   <button onClick={() => handleDecision(entry.status, "Approved")}>Approve</button>
                   <button onClick={() => handleDecision(entry.status, "Rejected")}>Reject</button>
                 </div>
