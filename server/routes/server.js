@@ -650,44 +650,55 @@ server.post('/login/test', async (req, res) => {
 });
 
 // Route to send decision email
-server.post("/send-decision-email", async (req, res) => {
+server.post("/send-decision-email", (req, res) => {
     const { advising_id, status } = req.body;
   
-    // Validate required fields
-    // if (!advising_id || !status) {
-    //   return res.status(400).json({ message: "All fields are required." });
-    // }
-  
-    try {
-      // Check if advising entry exists
-      const [existingEntry] = await db.query(
-        "SELECT student_email FROM course_advising_history WHERE advising_id = ?",
-        [advising_id]
-      );
-  
-      if (!existingEntry) {
-        return res.status(404).json({ message: "Advising entry not found." });
-      }
-  
-      // Update database - no feedback message column is involved
-      await db.query(
-        "UPDATE course_advising_history SET status = ? WHERE advising_id = ?",
-        [status, advising_id]
-      );
-  
-      // Send email to the student
-      const studentEmail = existingEntry.student_email;
-      await sendEmail({
-        to: studentEmail,
-        subject: `Advising Decision: ${status}`,
-        text: `Dear Student,\n\nYour advising request has been ${status.toLowerCase()}.\n\nThank you,\nAcademic Advising Team`,
-      });
-  
-      res.json({ message: "Decision email sent successfully." });
-    } catch (error) {
-      console.error("Error in send-decision-email:", error);
-      res.status(500).json({ message: "An error occurred. Please try again." });
+    if (!advising_id || !status) {
+      return res.status(400).json({ message: "All fields are required." });
     }
+  
+    // Check if advising entry exists
+    db.query(
+      "SELECT student_email FROM course_advising_history WHERE advising_id = ?",
+      [advising_id],
+      (err, rows) => {
+        if (err) {
+          console.error("Error fetching advising entry:", err);
+          return res.status(500).json({ message: "An error occurred while fetching advising entry." });
+        }
+  
+        if (!rows.length) {
+          return res.status(404).json({ message: "Advising entry not found." });
+        }
+  
+        // Update database (only status column)
+        db.query(
+          "UPDATE course_advising_history SET status = ? WHERE advising_id = ?",
+          [status, advising_id],
+          (updateErr, result) => {
+            if (updateErr) {
+              console.error("Error updating advising entry:", updateErr);
+              return res.status(500).json({ message: "An error occurred while updating the advising entry." });
+            }
+  
+            // Send email to the student
+            const studentEmail = rows[0].student_email;
+            sendEmail({
+              to: studentEmail,
+              subject: `Advising Decision: ${status}`,
+              text: `Dear Student,\n\nYour advising request has been ${status.toLowerCase()}.\n\nThank you,\nAcademic Advising Team`,
+            }, (emailErr, info) => {
+              if (emailErr) {
+                console.error("Error sending email:", emailErr);
+                return res.status(500).json({ message: "An error occurred while sending the email." });
+              }
+  
+              res.json({ message: "Decision email sent successfully." });
+            });
+          }
+        );
+      }
+    );
   });
   
   
