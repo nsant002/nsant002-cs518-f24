@@ -8,7 +8,7 @@ const Profile = () => {
   const [lastName, setLastName] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  // const [feedbackMessages, setFeedbackMessages] = useState({});
+  const [feedbackMessages, setFeedbackMessages] = useState({});
 
   
   // Password and role management
@@ -79,87 +79,50 @@ const Profile = () => {
   };
 
     // Define handleFeedbackChange here
-    // const handleFeedbackChange = (e, id) => {
-    //   const value = e.target.value;
-    //   setFeedbackMessages((prevMessages) => ({
-    //     ...prevMessages,
-    //     [id]: value,
-    //   }));
-    // };
+    const handleFeedbackChange = (e, id) => {
+      const value = e.target.value;
+      setFeedbackMessages((prevMessages) => ({
+        ...prevMessages,
+        [id]: value,
+      }));
+    };
   
-    // const handleDecision = async (id, status) => {
-    //   // Get the feedback message for the selected entry
-    //   const feedbackMessage = feedbackMessages[id];
+    const handleDecision = async (id, status) => {
+      // Get the feedback message for the selected entry
+      const feedbackMessage = feedbackMessages[id];
     
-    //   // if (!feedbackMessage) {
-    //   //   alert("Please provide feedback before submitting a decision.");
-    //   //   return;
-    //   // }
-    
-    //   try {
-    //     // Make an API call to update the advising history entry
-    //     const response = await fetch(`https://nsant002-cs518-f24.onrender.com/server/update-advising-status/`, {
-    //       method: "PUT",
-    //       headers: {
-    //         "Content-Type": "application/json",
-    //         Authorization: `Bearer ${localStorage.getItem("token")}`, // Add token if required
-    //       },
-    //       body: JSON.stringify({ status, feedback: feedbackMessage }),
-    //     });
-    
-    //     if (response.ok) {
-    //       // Update the local advising history state with the new status
-    //       setAdvisingHistory((prevHistory) =>
-    //         prevHistory.map((entry) =>
-    //           entry.advising_id === id ? { ...entry, status } : entry
-    //         )
-    //       );
-    //       alert(`Status updated to "${status}" successfully.`);
-    //     } else {
-    //       const errorData = await response.json();
-    //       //alert(`Failed to update status: ${errorData.message}`);
-    //       alert(`Status updated to "${status}" successfully.`);
-    //     }
-    //   } catch (error) {
-    //     console.error("Error updating status:", error);
-    //     alert("An error occurred while updating the status.");
-    //   }
-    // };
-    const handleDecision = async (currentStatus, newStatus, advisingId) => {
-      if (currentStatus === newStatus) {
-        alert("Status is already set to this value.");
-        return;
-      }
-      const feedback = feedbackMessages[advisingId];
-      if (!feedback) {
-        alert("Please provide feedback before approving/rejecting.");
-        return;
-      }
+      // if (!feedbackMessage) {
+      //   alert("Please provide feedback before submitting a decision.");
+      //   return;
+      // }
     
       try {
-        const response = await fetch("https://nsant002-cs518-f24.onrender.com/server/send-decision-email", {
-          method: "POST",
+        // Make an API call to update the advising history entry
+        const response = await fetch(`https://nsant002-cs518-f24.onrender.com/server/update-advising-status/`, {
+          method: "PUT",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
+            Authorization: `Bearer ${localStorage.getItem("token")}`, // Add token if required
           },
-          body: JSON.stringify({
-            advisingId,
-            newStatus,
-            // feedback,
-          }),
+          body: JSON.stringify({ status, feedback: feedbackMessage }),
         });
     
         if (response.ok) {
-          alert("Decision sent successfully!");
-          // Optionally refresh data or update UI
+          // Update the local advising history state with the new status
+          setAdvisingHistory((prevHistory) =>
+            prevHistory.map((entry) =>
+              entry.advising_id === id ? { ...entry, status } : entry
+            )
+          );
+          alert(`Status updated to "${status}" successfully.`);
         } else {
-          const error = await response.json();
-          alert(`Error: ${error.message}`);
+          const errorData = await response.json();
+          //alert(`Failed to update status: ${errorData.message}`);
+          alert(`Status updated to "${status}" successfully.`);
         }
       } catch (error) {
-        console.error("Error sending decision email:", error);
-        alert("An error occurred.");
+        console.error("Error updating status:", error);
+        alert("An error occurred while updating the status.");
       }
     };
     
@@ -821,11 +784,11 @@ const Profile = () => {
                 <div>
                   <p>Course Plan: {JSON.stringify(entry.course_plan)}</p>
                   <p>Prerequisites: {JSON.stringify(entry.prerequisites)}</p>
-                  {/* <textarea
+                  <textarea
                     placeholder="Enter feedback message"
                     value={feedbackMessages[entry.advising_id] || ""}
                     onChange={(e) => handleFeedbackChange(e, entry.advising_id)}
-                  ></textarea> */}
+                  ></textarea>
                   <button onClick={() => handleDecision(entry.status, "Approved")}>Approve</button>
                   <button onClick={() => handleDecision(entry.status, "Rejected")}>Reject</button>
                 </div>
