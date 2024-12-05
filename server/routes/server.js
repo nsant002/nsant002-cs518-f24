@@ -650,42 +650,47 @@ server.post('/login/test', async (req, res) => {
 });
 
 // Route to send decision email
-server.post('/send-decision-email', async (req, res) => {
-    const { email, decision } = req.body;
-
-    if (!email || !decision) {
-        return res.status(400).json({ message: 'Email, decision, and advising term are required.' });
+server.post("/send-decision-email", async (req, res) => {
+    const { advising_id, status } = req.body;
+  
+    // Validate required fields
+    if (!advising_id || !status) {
+      return res.status(400).json({ message: "All fields are required." });
     }
-
-    const mailOptions = {
-        from: process.env.SMTP_EMAIL,
-        to: email,
-        subject: 'Advising Decision Notification',
-        html: `
-            <p>Dear Student,</p>
-            <p>We have reviewed your advising request for the term <strong>${advisingTerm}</strong>.</p>
-            <p>Your request has been <strong>${decision}</strong>.</p>
-            <p>If you have any questions or concerns, please contact the advising office.</p>
-            <p>Best regards,</p>
-            <p>The Advising Team</p>
-        `,
-    };
-
+  
     try {
-        // Send the email using the transporter
-        await transporter.sendMail(mailOptions);
-        console.log('Decision email sent successfully.');
-
-        res.status(200).json({
-            message: `Decision email sent successfully to ${email}.`,
-        });
+      // Check if advising entry exists
+      const [existingEntry] = await db.query(
+        "SELECT student_email FROM course_advising_history WHERE advising_id = ?",
+        [advising_id]
+      );
+  
+      if (!existingEntry) {
+        return res.status(404).json({ message: "Advising entry not found." });
+      }
+  
+      // Update database - no feedback message column is involved
+      await db.query(
+        "UPDATE course_advising_history SET status = ? WHERE advising_id = ?",
+        [status, advising_id]
+      );
+  
+      // Send email to the student
+      const studentEmail = existingEntry.student_email;
+      await sendEmail({
+        to: studentEmail,
+        subject: `Advising Decision: ${status}`,
+        text: `Dear Student,\n\nYour advising request has been ${status.toLowerCase()}.\n\nThank you,\nAcademic Advising Team`,
+      });
+  
+      res.json({ message: "Decision email sent successfully." });
     } catch (error) {
-        console.error('Error sending decision email:', error);
-        res.status(500).json({
-            message: 'Failed to send decision email. Please try again.',
-        });
+      console.error("Error in send-decision-email:", error);
+      res.status(500).json({ message: "An error occurred. Please try again." });
     }
-});
+  });
+  
+  
 
 
 export default server;
