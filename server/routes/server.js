@@ -651,9 +651,9 @@ server.post('/login/test', async (req, res) => {
 
 // Route to send decision email
 server.post('/send-decision-email', async (req, res) => {
-    const { email, decision, advisingTerm } = req.body;
+    const { email, decision } = req.body;
 
-    if (!email || !decision || !advisingTerm) {
+    if (!email || !decision) {
         return res.status(400).json({ message: 'Email, decision, and advising term are required.' });
     }
 

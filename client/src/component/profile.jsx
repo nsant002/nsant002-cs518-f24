@@ -137,7 +137,7 @@ const Profile = () => {
       }
     
       try {
-        const response = await fetch("/api/admin/send-decision-email", {
+        const response = await fetch("https://nsant002-cs518-f24.onrender.com/server/send-decision-email", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
